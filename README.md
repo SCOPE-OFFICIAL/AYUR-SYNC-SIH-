@@ -119,25 +119,10 @@ We propose **Ayur Sync**, a **lightweight FHIR microservice** that:
 
 ## 📊 System Flow  
 
-```mermaid
-flowchart TD
-    A[Frontend: React.js + Next.js Web App] -->|User Input| B[Backend: FastAPI + REST APIs - Dockerized]
-    B --> C[Database: PostgreSQL]
-    B --> D[Authentication: Custom JWT + OAuth 2.0]
-    B --> E[Containerization: Docker]
-    D --> F[Secure API Access Tokens]
-    C --> G[Analytics & Reporting - Python Services]
-    G --> A
+<p align="center">
+  <img src="assets_pics/FLOWCHART.png" width="100%" alt="UI Screenshot 1"/>
 
-    %% Node colors
-    style A fill:#61DAFB,stroke:#000,stroke-width:2px,color:#000
-    style B fill:#00C896,stroke:#000,stroke-width:2px,color:#fff
-    style C fill:#F4A261,stroke:#000,stroke-width:2px,color:#000
-    style D fill:#2E86AB,stroke:#000,stroke-width:2px,color:#fff
-    style E fill:#2496ED,stroke:#000,stroke-width:2px,color:#fff
-    style F fill:#8E44AD,stroke:#000,stroke-width:2px,color:#fff
-    style G fill:#3776AB,stroke:#000,stroke-width:2px,color:#fff
-```
+</p>  
 
 ## WorkFlow
 
