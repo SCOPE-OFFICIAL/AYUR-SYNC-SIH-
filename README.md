@@ -1,4 +1,10 @@
-# AYUR-SYNC API
+# 🌿AYUR-SYNC-API  SIH 2025 
+
+A next-gen API-driven platform to **integrate NAMASTE codes, WHO ICD-11 TM2, and Biomedicine** into FHIR-compliant EMR systems.  
+Our solution empowers clinicians to seamlessly combine **Ayush diagnoses (Ayurveda, Siddha, Unani)** with **ICD-11 coding** for **interoperability, insurance, and global reporting**.  
+
+![Ayur Sync Demo](GIF/AYUR-SYNC-WELCOME.gif) <!-- Replace with actual GIF -->
+
 
 ## Hackathon Feature Coverage Matrix (Added)
 
@@ -24,12 +30,6 @@ Deferred (Red / Future Roadmap):
 - ABHA production OAuth / JWK verification
 - Formal FHIR Package publication & $validate-code
 
-# 🌿 Ayur Sync – SIH 2025  
-
-A next-gen API-driven platform to **integrate NAMASTE codes, WHO ICD-11 TM2, and Biomedicine** into FHIR-compliant EMR systems.  
-Our solution empowers clinicians to seamlessly combine **Ayush diagnoses (Ayurveda, Siddha, Unani)** with **ICD-11 coding** for **interoperability, insurance, and global reporting**.  
-
-![Ayur Sync Demo](GIF/AYUR-SYNC-WELCOME.gif) <!-- Replace with actual GIF -->
 
 ---
 
@@ -100,6 +100,9 @@ We propose **Ayur Sync**, a **lightweight FHIR microservice** that:
   <img src="https://img.shields.io/badge/REST-02569B?style=for-the-badge&logo=swagger&logoColor=white"/>
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black"/>
   <img src="https://img.shields.io/badge/VS%20Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-007ACC?style=for-the-badge&logo=Docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Gemini-007ACC?style=for-the-badge&logo=Gemini&logoColor=black"/>
+  
 </p>  
 
 ---
