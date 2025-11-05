@@ -211,6 +211,9 @@ Stub consent table + global active row (ready for per-patient in next phase). JW
 6. Ingest sample Bundle – mismatch classification.
 7. Show cache stats before/after multiple translate calls.
 8. Display audit entries (verify a mapping via `/api/v1/admin/verify`).
+9. For Local testing run:
+   cd 'D:\AYUR-SYNC-API\BACKEND'; python -m http.server 5500 -- and then navigate to the address in a browser, then enter admin panel mpa, admin panel would directly open then.
+10.Docker container will be automatically updated if any code changes are committed due to DEV_MODE=1, but still if reset is required then run nuke all script from BACKEND directory.
 
 ---
 

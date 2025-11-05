@@ -68,7 +68,6 @@ async function initializeApp() {
         contentArea: document.getElementById('content-area'),
         mainLoader: document.getElementById('main-loader'),
         logoutButton: document.getElementById('logout-button'),
-        resetButton: document.getElementById('reset-button'),
         // Stats
         statReview: document.getElementById('stat-review'),
     statMasterMap: document.getElementById('stat-master-map'),
@@ -83,7 +82,6 @@ async function initializeApp() {
 
     // Attach common event listeners
     if (dom.logoutButton) dom.logoutButton.addEventListener('click', handleLogout);
-    if (dom.resetButton) dom.resetButton.addEventListener('click', () => handleResetCuration(dom.resetButton));
     const deepResetBtn = document.getElementById('deep-reset-button');
     if (deepResetBtn) deepResetBtn.addEventListener('click', () => openDeepResetModal(deepResetBtn));
     
@@ -192,31 +190,7 @@ async function handleResetCuration_OLD(button) {
     }
 */
 
-// Replace the old handleResetCuration function in shared.js
-
-async function handleResetCuration(button) {
-    if (!confirm("This will delete all curated data and regenerate suggestions. This may take a moment. Continue?")) return;
-
-    // Clear suggestions cache so the next visit to New Suggestions fetches fresh data
-    await clearSuggestionsCache();
-
-    // Mark reset start time so pages can adapt UI/poll until data appears
-    try { localStorage.setItem('curationResetAt', String(Date.now())); } catch {}
-
-    toggleButtonLoading(button, true, 'Resetting...');
-    dom.mainLoader.classList.remove('hidden');
-    dom.contentArea.innerHTML = '';
-    try {
-        const result = await fetchAPI('/admin/reset-curation', 'POST');
-        alert(result.message);
-        window.location.href = 'new_suggestions.html';
-    } catch (error) {
-        alert(`Failed to reset: ${error.message}`);
-        dom.mainLoader.classList.add('hidden');
-    } finally {
-        toggleButtonLoading(button, false, 'Reset Curation');
-    }
-}
+// Reset Curation function removed - only Overall Reset is available now
 
 // Shared helper: clear the IndexedDB suggestions cache used by New Suggestions page
 async function clearSuggestionsCache() {
