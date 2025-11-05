@@ -448,9 +448,17 @@ function getSuggestionId(suggestion) {
 
 // --- API WRAPPER ---
 async function fetchAPI(endpoint, method = 'GET', body = null) {
+    // Always get the freshest token from localStorage as fallback
+    const token = state.token || localStorage.getItem('accessToken');
+    if (!token) {
+        console.error('❌ No auth token available for API request');
+        handleLogout();
+        throw new Error('Authentication required');
+    }
+    
     const options = {
         method,
-        headers: { 'Authorization': `Bearer ${state.token}`, 'Cache-Control': 'no-cache' },
+        headers: { 'Authorization': `Bearer ${token}`, 'Cache-Control': 'no-cache' },
     };
     if (body) {
         options.headers['Content-Type'] = 'application/json';
