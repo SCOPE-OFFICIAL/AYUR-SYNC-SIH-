@@ -370,7 +370,30 @@ async function updateDeepResetStatus(bar, status) {
     updateDeepResetBadge(pct);
     const stepsEl = document.getElementById('deep-reset-steps');
     if (stepsEl && Array.isArray(status.steps)) {
-        stepsEl.innerHTML = status.steps.map(s=>`<div>${escapeHtml((s.ts||'').split('T')[1]||'') } - ${escapeHtml(s.msg)}</div>`).join('');
+        // Filter and keep important steps (main steps) and latest discovery progress
+        const importantSteps = status.steps.filter(s => {
+            const msg = s.msg || '';
+            // Keep all main step messages (1/6, 2/6, etc) and latest discovery progress
+            return msg.includes('[1/6]') || msg.includes('[2/6]') || msg.includes('[3/6]') || 
+                   msg.includes('[4/6]') || msg.includes('[5/6]') || msg.includes('[6/6]') ||
+                   msg.includes('ERROR') || msg.includes('Sanity') || msg.includes('completed');
+        });
+        
+        // Get latest discovery progress if exists
+        const discoverySteps = status.steps.filter(s => (s.msg || '').includes('Discovery Progress:'));
+        const latestDiscovery = discoverySteps.length > 0 ? discoverySteps[discoverySteps.length - 1] : null;
+        
+        // Combine: show important steps + latest discovery progress
+        const displaySteps = [...importantSteps];
+        if (latestDiscovery) {
+            // Insert latest discovery after step 4/6
+            const step4Index = displaySteps.findIndex(s => (s.msg || '').includes('[4/6]'));
+            if (step4Index >= 0) {
+                displaySteps.splice(step4Index + 1, 0, latestDiscovery);
+            }
+        }
+        
+        stepsEl.innerHTML = displaySteps.map(s=>`<div>${escapeHtml((s.ts||'').split('T')[1]||'') } - ${escapeHtml(s.msg)}</div>`).join('');
         stepsEl.scrollTop = stepsEl.scrollHeight;
     }
     const phase = inferDeepResetPhase(status);

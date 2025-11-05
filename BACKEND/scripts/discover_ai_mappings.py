@@ -157,8 +157,9 @@ def discover_ai_mappings(progress_callback=None):
             i = i + 1
             progress_msg = f"[{i}/{total_icds}] Processing ICD: {icd_name}"
             print(progress_msg)
-            if progress_callback:
-                progress_callback(progress_msg)
+            # Only log to callback every 50 ICDs to avoid flooding the UI
+            if progress_callback and (i % 50 == 0 or i == 1 or i == total_icds):
+                progress_callback(f"Discovery Progress: {i}/{total_icds} ICDs processed ({int(i/total_icds*100)}%)")
 
             if icd_name not in icd_cache:
                 icd_code_obj = db.query(ICD11Code).filter(ICD11Code.icd_name == icd_name).first()
