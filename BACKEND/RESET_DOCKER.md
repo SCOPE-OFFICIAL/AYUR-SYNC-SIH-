@@ -76,3 +76,7 @@ docker compose up -d
 
 ---
 Generated helper file to standardize destructive reset procedure.
+
+
+
+http://127.0.0.1:5500   -- local admin panel link

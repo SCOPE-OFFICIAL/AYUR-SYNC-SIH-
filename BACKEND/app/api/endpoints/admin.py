@@ -2564,7 +2564,12 @@ def _deep_reset_job():
         _set_progress(3)
         # 3. Run discovery script to repopulate (ICDs, terms, mappings)
         _dr_log("[4/6] Running discovery script to repopulate database (This may take several minutes since AYUR-SYNC api calls are integrated via Render Free Version.)")
-        discover_ai_mappings()
+        
+        # Pass callback to log discovery progress
+        def discovery_progress_callback(msg: str):
+            _dr_log(msg)
+        
+        discover_ai_mappings(progress_callback=discovery_progress_callback)
         _set_progress(4)
         # 4. Sanity checks
         _dr_log("[5/6] Performing sanity checks")

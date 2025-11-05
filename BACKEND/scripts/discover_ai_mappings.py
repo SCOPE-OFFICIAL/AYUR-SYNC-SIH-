@@ -13,10 +13,13 @@ from app.db.session import SessionLocal
 from app.db.models import ICD11Code, TraditionalTerm, Mapping
 # --- END DB IMPORTS ---
 
-def discover_ai_mappings():
+def discover_ai_mappings(progress_callback=None):
     """
     Processes raw AI suggestions, transforms them, and INSERTS them directly
     into the PostgreSQL database with standardized lowercase system names.
+    
+    Args:
+        progress_callback: Optional callable that accepts a message string for progress updates
     """
     # --- This initial data processing part remains the same ---
     DATA_PATH = "data/processed"
@@ -146,8 +149,16 @@ def discover_ai_mappings():
         updated_terms = 0
         
         print("Writing suggestions to the database...")
+        i = 0
+        total_icds = len(merged_df.groupby('suggested_icd_name'))
         for icd_name, group in merged_df.groupby('suggested_icd_name'):
             if not icd_name: continue
+            
+            i = i + 1
+            progress_msg = f"[{i}/{total_icds}] Processing ICD: {icd_name}"
+            print(progress_msg)
+            if progress_callback:
+                progress_callback(progress_msg)
 
             if icd_name not in icd_cache:
                 icd_code_obj = db.query(ICD11Code).filter(ICD11Code.icd_name == icd_name).first()
@@ -234,6 +245,7 @@ def discover_ai_mappings():
                         ai_justification=suggestion_row.get('justification'),
                         ai_confidence=confidence_int
                     )
+                   
                     db.add(new_mapping)
         
         print("Committing all new records to the database...")
