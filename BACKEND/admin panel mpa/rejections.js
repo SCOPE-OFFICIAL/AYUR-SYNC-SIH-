@@ -145,8 +145,18 @@ function handleIcdSearch(inputElement) {
         return;
     }
 
-    const filteredCodes = state.allIcdCodes.filter(code => code.toLowerCase().includes(filter));
-    
+    // Normalize the list so we always work with an array of strings. The
+    // backend may return either plain strings (['A', 'B']) or objects
+    // ([{icd_name: 'A'}, {suggested_icd_name: 'B'}]). Make the UI tolerant.
+    const normalized = (state.allIcdCodes || []).map(item => {
+        if (!item && item !== 0) return '';
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object') return item.icd_name || item.suggested_icd_name || item.name || String(item);
+        return String(item);
+    });
+
+    const filteredCodes = normalized.filter(code => code.toLowerCase().includes(filter));
+
     if (filteredCodes.length > 0) {
         dropdown.innerHTML = filteredCodes.map(code => 
             `<div class="p-2 hover:bg-gray-100 cursor-pointer" onmousedown="selectIcd(this)">${code}</div>`
