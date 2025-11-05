@@ -2563,7 +2563,7 @@ def _deep_reset_job():
                 except OSError: pass
         _set_progress(3)
         # 3. Run discovery script to repopulate (ICDs, terms, mappings)
-        _dr_log("[4/6] Running discovery script to repopulate database")
+        _dr_log("[4/6] Running discovery script to repopulate database (This may take several minutes since AYUR-SYNC api calls are integrated via Render Free Version.)")
         discover_ai_mappings()
         _set_progress(4)
         # 4. Sanity checks
