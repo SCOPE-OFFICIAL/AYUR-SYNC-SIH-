@@ -19,22 +19,59 @@ function calculateMappingScore(suggestion) {
 
 const DB_NAME = 'NamasteICD_DB';
 const SUGGESTIONS_STORE_NAME = 'suggestions_cache';
-const DB_VERSION = 2;
+const DB_VERSION = 3; // Incremented to force schema recreation
 
 /**
- * Opens and initializes the IndexedDB database.
+ * Deletes the IndexedDB database to reset it.
+ */
+async function resetCacheDb() {
+    try {
+        console.log('🔄 Resetting IndexedDB database...');
+        await idb.deleteDB(DB_NAME);
+        console.log('✅ IndexedDB database reset successfully');
+    } catch (err) {
+        console.error('Failed to reset IndexedDB:', err);
+    }
+}
+
+/**
+ * Opens and initializes the IndexedDB database with error recovery.
  * This function sets up the necessary object stores for caching.
  * @returns {Promise<IDBDatabase>} A promise that resolves to the database instance.
  */
 async function openCacheDb() {
-    return idb.openDB(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-            // Create the object store only if it doesn't already exist to avoid ConstraintError on version bumps
-            if (!db.objectStoreNames.contains(SUGGESTIONS_STORE_NAME)) {
+    try {
+        return await idb.openDB(DB_NAME, DB_VERSION, {
+            upgrade(db, oldVersion, newVersion, transaction) {
+                console.log(`📊 Upgrading IndexedDB from v${oldVersion} to v${newVersion}`);
+                
+                // If upgrading from an older version, delete old stores to avoid conflicts
+                if (oldVersion > 0 && db.objectStoreNames.contains(SUGGESTIONS_STORE_NAME)) {
+                    db.deleteObjectStore(SUGGESTIONS_STORE_NAME);
+                    console.log('🗑️ Deleted old object store');
+                }
+                
+                // Create fresh object store
                 db.createObjectStore(SUGGESTIONS_STORE_NAME, { keyPath: 'suggested_icd_name' });
-            }
-        },
-    });
+                console.log('✅ Created new object store');
+            },
+            blocked() {
+                console.warn('⚠️ IndexedDB upgrade blocked. Please close other tabs.');
+            },
+            blocking() {
+                console.warn('⚠️ This tab is blocking IndexedDB upgrade.');
+            },
+        });
+    } catch (err) {
+        console.error('❌ Failed to open IndexedDB, resetting database:', err);
+        // If opening fails, reset and try again
+        await resetCacheDb();
+        return await idb.openDB(DB_NAME, DB_VERSION, {
+            upgrade(db) {
+                db.createObjectStore(SUGGESTIONS_STORE_NAME, { keyPath: 'suggested_icd_name' });
+            },
+        });
+    }
 }
 // Add this new function at the top of new_suggestions.js
 
@@ -51,25 +88,45 @@ async function openCacheDb() {
  * @returns {Promise<Array>} A promise that resolves to the array of suggestions.
  */
 async function getSuggestionsWithCache() {
-    const db = await openCacheDb();
-    const cachedSuggestions = await db.getAll(SUGGESTIONS_STORE_NAME);
+    try {
+        const db = await openCacheDb();
+        
+        // Try to get cached suggestions
+        let cachedSuggestions;
+        try {
+            cachedSuggestions = await db.getAll(SUGGESTIONS_STORE_NAME);
+        } catch (err) {
+            console.warn('⚠️ Failed to read from cache, resetting:', err);
+            await resetCacheDb();
+            // Proceed to fetch from API below
+            cachedSuggestions = [];
+        }
 
-    if (cachedSuggestions && cachedSuggestions.length > 0) {
-        console.log("✅ Loading suggestions from IndexedDB cache.");
-        return cachedSuggestions;
+        if (cachedSuggestions && cachedSuggestions.length > 0) {
+            console.log("✅ Loading suggestions from IndexedDB cache.");
+            return cachedSuggestions;
+        }
+
+        console.log("📡 IndexedDB cache empty. Fetching suggestions from API...");
+        const suggestions = await fetchAPI('/admin/all-suggestions');
+
+        // Store the fresh data in IndexedDB for next time.
+        try {
+            const tx = db.transaction(SUGGESTIONS_STORE_NAME, 'readwrite');
+            await Promise.all(suggestions.map(item => tx.store.put(item)));
+            await tx.done;
+            console.log("✅ Suggestions cached in IndexedDB.");
+        } catch (err) {
+            console.warn('⚠️ Failed to cache suggestions:', err);
+            // Continue anyway - we have the data from API
+        }
+
+        return suggestions;
+    } catch (err) {
+        console.error('❌ Cache system failed, falling back to direct API fetch:', err);
+        // Complete fallback: just fetch from API without caching
+        return await fetchAPI('/admin/all-suggestions');
     }
-
-    console.log("... IndexedDB cache empty. Fetching suggestions from API.");
-    const suggestions = await fetchAPI('/admin/all-suggestions');
-
-    // Store the fresh data in IndexedDB for next time.
-    // We use a transaction to perform a bulk write.
-    const tx = db.transaction(SUGGESTIONS_STORE_NAME, 'readwrite');
-    await Promise.all(suggestions.map(item => tx.store.put(item)));
-    await tx.done;
-    console.log("... Suggestions cached in IndexedDB.");
-
-    return suggestions;
 }
 
 /*

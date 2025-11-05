@@ -195,15 +195,29 @@ async function handleResetCuration_OLD(button) {
 // Shared helper: clear the IndexedDB suggestions cache used by New Suggestions page
 async function clearSuggestionsCache() {
     try {
-        console.log("Clearing IndexedDB suggestions cache...");
+        console.log("🧹 Clearing IndexedDB suggestions cache...");
         const DB_NAME = 'NamasteICD_DB';
         const SUGGESTIONS_STORE_NAME = 'suggestions_cache';
-        const db = await idb.openDB(DB_NAME, 2);
-        await db.clear(SUGGESTIONS_STORE_NAME);
-        console.log("... Suggestions cache cleared.");
+        const DB_VERSION = 3; // Match the version in new_suggestions.js
+        
+        try {
+            const db = await idb.openDB(DB_NAME, DB_VERSION);
+            await db.clear(SUGGESTIONS_STORE_NAME);
+            console.log("✅ Suggestions cache cleared.");
+        } catch (err) {
+            console.warn("⚠️ Failed to clear cache, deleting database:", err);
+            // If clearing fails, delete the entire database
+            await idb.deleteDB(DB_NAME);
+            console.log("✅ Database deleted.");
+        }
+        
         try { localStorage.setItem('suggestionsInvalidate', String(Date.now())); } catch {}
     } catch (err) {
-        console.error("Failed to clear IndexedDB cache:", err);
+        console.error("❌ Failed to clear IndexedDB cache:", err);
+        // Try to delete DB as last resort
+        try {
+            await idb.deleteDB('NamasteICD_DB');
+        } catch {}
     }
 }
 // Expose a helper to invalidate after promotions without full clear (just bump timestamp)

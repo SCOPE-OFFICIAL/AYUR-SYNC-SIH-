@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache - NAMASTE-ICD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/idb@7/build/umd.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">🧹 Clear Cache</h1>
+        
+        <p class="text-gray-600 mb-6">
+            If you're experiencing issues with the admin panel (like IndexedDB errors), 
+            click the button below to clear all cached data and reset the database.
+        </p>
+        
+        <div id="status" class="mb-4 hidden">
+            <div class="p-4 rounded-lg" id="status-box">
+                <p id="status-message" class="text-sm font-medium"></p>
+            </div>
+        </div>
+        
+        <button 
+            id="clear-btn"
+            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+        >
+            Clear All Cache
+        </button>
+        
+        <button 
+            id="back-btn"
+            class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-4 rounded-lg transition-colors"
+            onclick="window.location.href='new_suggestions.html'"
+        >
+            ← Back to Admin Panel
+        </button>
+        
+        <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h3 class="text-sm font-semibold text-blue-800 mb-2">What gets cleared?</h3>
+            <ul class="text-sm text-blue-700 space-y-1">
+                <li>• IndexedDB (NamasteICD_DB)</li>
+                <li>• localStorage suggestions cache</li>
+                <li>• All cached mappings data</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const clearBtn = document.getElementById('clear-btn');
+        const statusBox = document.getElementById('status');
+        const statusMessage = document.getElementById('status-message');
+        const statusContainer = document.getElementById('status-box');
+
+        function showStatus(message, isError = false) {
+            statusBox.classList.remove('hidden');
+            statusMessage.textContent = message;
+            statusContainer.className = isError 
+                ? 'p-4 rounded-lg bg-red-50 border border-red-200'
+                : 'p-4 rounded-lg bg-green-50 border border-green-200';
+            statusMessage.className = isError 
+                ? 'text-sm font-medium text-red-800'
+                : 'text-sm font-medium text-green-800';
+        }
+
+        clearBtn.addEventListener('click', async () => {
+            clearBtn.disabled = true;
+            clearBtn.textContent = 'Clearing...';
+            
+            try {
+                console.log('🧹 Starting cache clear...');
+                
+                // Clear IndexedDB
+                try {
+                    await idb.deleteDB('NamasteICD_DB');
+                    console.log('✅ IndexedDB deleted');
+                } catch (err) {
+                    console.warn('⚠️ Failed to delete IndexedDB:', err);
+                }
+                
+                // Clear localStorage
+                try {
+                    localStorage.clear();
+                    console.log('✅ localStorage cleared');
+                } catch (err) {
+                    console.warn('⚠️ Failed to clear localStorage:', err);
+                }
+                
+                // Clear sessionStorage
+                try {
+                    sessionStorage.clear();
+                    console.log('✅ sessionStorage cleared');
+                } catch (err) {
+                    console.warn('⚠️ Failed to clear sessionStorage:', err);
+                }
+                
+                showStatus('✅ Cache cleared successfully! Redirecting...', false);
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'new_suggestions.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('❌ Failed to clear cache:', error);
+                showStatus('❌ Error: ' + error.message, true);
+                clearBtn.disabled = false;
+                clearBtn.textContent = 'Clear All Cache';
+            }
+        });
+    </script>
+</body>
+</html>
