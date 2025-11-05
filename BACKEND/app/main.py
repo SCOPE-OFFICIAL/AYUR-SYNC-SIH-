@@ -112,6 +112,12 @@ def ensure_tables_exist_on_startup():
         print(f"[STARTUP] WHO sync scheduler failed to start: {e}", flush=True)
 
 
+@app.get("/health")
+def health_check():
+    """Health check endpoint for Render and other platforms."""
+    return {"status": "ok", "service": "ayur-sync-api"}
+
+
 @app.middleware("http")
 async def access_log_middleware(request: Request, call_next):
     start = time.perf_counter()
