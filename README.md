@@ -2,7 +2,7 @@
 
 A next-gen API-driven platform to **integrate NAMASTE codes, WHO ICD-11 TM2, and Biomedicine** into FHIR-compliant EMR systems.  
 Our solution empowers clinicians to seamlessly combine **Ayush diagnoses (Ayurveda, Siddha, Unani)** with **ICD-11 coding** for **interoperability, insurance, and global reporting**.  
-(CHECK RELEASES TO SEE THE V1 OF ADMIN PANEL PROJECT)
+###(CHECK RELEASES TO SEE THE V1 OF AYUR SYNC API ADMIN PANEL)
 ![Ayur Sync Demo](GIF/AYUR-SYNC-WELCOME.gif) <!-- Replace with actual GIF -->
 
 
